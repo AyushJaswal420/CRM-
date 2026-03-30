@@ -37,89 +37,65 @@ New Contact, Interested, Send Portfolio, Time Given, Meeting Scheduled, Meeting 
 1. Highest, 2. High, 3. Medium, 4. Low, 5. Review, 6. Archive
 
 ## What's Been Implemented (Phase 1 - 2026-03-30)
-- ✅ FastAPI backend with all lead/team/auth endpoints
-- ✅ JWT authentication with cookie-based tokens
-- ✅ MongoDB models for users and leads with proper indexes
-- ✅ Admin seeding (admin@wedus.com / admin123)
-- ✅ Sample team members (Priya Sharma, Rahul Mehta, Ananya Singh - password: team123)
-- ✅ React frontend with all routes
-- ✅ Login page with validation
-- ✅ Dashboard with stat cards and category/pipeline overview
-- ✅ Sidebar with all navigation items and live count badges
-- ✅ Team management page (view, add, delete members)
-- ✅ All Leads table with search and filters
-- ✅ Mobile responsive design with bottom navigation
-- ✅ Placeholder pages for all routes
+- FastAPI backend with all lead/team/auth endpoints
+- JWT authentication with cookie-based tokens
+- MongoDB models for users and leads with proper indexes
+- Admin seeding (admin@wedus.com / admin123)
+- Sample team members (Priya Sharma, Rahul Mehta, Ananya Singh - password: team123)
+- React frontend with all routes
+- Login page with validation
+- Dashboard with stat cards and category/pipeline overview
+- Sidebar with all navigation items and live count badges
+- Team management page (view, add, delete members)
+- All Leads table with search and filters
+- Mobile responsive design with bottom navigation
+- Placeholder pages for all routes
 
 ## What's Been Implemented (Phase 2 - 2026-03-30)
-- ✅ **All Leads Table Page** - Excel-style horizontally scrollable table
-  - Row colors by category (Meeting Done=green, Interested=blue, etc.)
+- **All Leads Table Page** - Excel-style horizontally scrollable table
+  - Row colors by category
   - Column sorting (click headers, Shift+click for multi-column)
   - Filters: Category, Priority, Assigned To, City, Portfolio Sent, Duplicates
   - Search by company, phone, instagram, city
   - Pagination (25/50/100/200 rows per page)
   - Bulk select, bulk delete, bulk reassign
   - Export CSV button
-- ✅ **CSV/Excel Import Feature**
+- **CSV/Excel Import Feature**
   - Drag-and-drop upload
-  - Auto column mapping (Company Name, Phone, WhatsApp, Instagram, Email, City, Category, etc.)
+  - Auto column mapping
   - Fuzzy category/priority/pipeline stage mapping
-  - Date parsing (multiple formats including Excel serial numbers)
   - Duplicate detection during import
-  - Preview first 10 rows before confirming
-  - Import summary with success/duplicate/error counts
-- ✅ **Add Lead Modal** - Full form with all fields
-- ✅ **Call Log Panel**
-  - Log New Call form with response dropdown (20+ response types)
-  - Notes, Duration, WA Number Used fields
-  - Next follow-up date/time picker
-  - Portfolio Sent, Price List Sent, WA Sent toggles
-  - Full call history timeline with team member color tags
-- ✅ **Lead Overview Page** (/leads/:id)
-  - Company header with category/priority badges
-  - Contact details with click-to-call, mailto links
-  - Location with Google Maps embed
-  - WhatsApp buttons (primary/secondary with switch)
-  - Lead details with inline editing
-  - Portfolio/Price List/WA sent toggles
-  - Call log timeline
-  - Edit modal for full updates
-  - Delete with confirmation
-- ✅ **Duplicate Detection**
-  - Auto-detect by phone, instagram, or companyName+city
-  - Duplicate badge on rows with amber border
-  - "Show Duplicates Only" filter toggle
+  - Preview and import summary
+- **Add Lead Modal** - Full form with all fields
+- **Call Log Panel** - Log New Call with response dropdown, notes, follow-up, toggles
+- **Lead Overview Page** (/leads/:id) - Full detail view with maps, editing, call history
+- **Duplicate Detection** - Auto-detect by phone, instagram, or companyName+city
 
 ## What's Been Implemented (Phase 3 - 2026-03-30)
-- ✅ **Pipeline Kanban Board** (/pipeline)
+- **Pipeline Kanban Board** (/pipeline)
   - Two tracks: Lead Workflow (8 stages) and Follow-up Track (6 stages)
-  - Color-coded columns with count badges
-  - Per-column sort dropdown (11 sort options)
-  - Global Sort button to apply same sort to all columns
-  - Sort preferences saved to localStorage
-  - + Add Lead button in each column (opens modal with pre-selected stage)
-  - Lead cards showing: company name, phone, city, assigned member, last response, next follow-up, portfolio badge, days since contact
-  - Edit/Delete buttons on each card
-  - **Drag-and-drop** between columns with instant MongoDB update
-  - Cards insert into correct sorted position in destination column
+  - Color-coded columns, per-column sort, drag-and-drop
+  - + Add Lead button per column
+  - Lead cards with full info
+- **Today/Tomorrow/This Week Views** - Date-filtered lead pages with LeadCard
+- **9 Category Pages** - Reusable CategoryPage component for all categories
+- **Shared LeadCard Component** - Inline Log Response panel
+
+## What's Been Implemented (Bug Fixes - 2026-03-30)
+- Fixed team member login (Priya re-seeded after testing agent deleted her)
+- Added dates beside Today/Tomorrow in sidebar (e.g., "Today · 30 Mar")
+- Verified Assigned To filter populates team members correctly
 
 ## Prioritized Backlog
 
-### P0 - Critical (Next Phase)
-- ✅ CSV/Excel import for leads - DONE
-- ✅ Lead detail view/edit modal - DONE
-- ✅ Response history logging per lead - DONE
-
 ### P1 - High Priority
-- [ ] Today/Tomorrow/This Week filtered views with real data
-- [ ] Category-specific pages with lead lists
-- ✅ Pipeline Kanban view - DONE
-- [ ] Lead assignment to team members
+- [ ] Settings toggle to turn duplicate detection on/off globally
+- [ ] Lead assignment round-robin distribution on import
 
 ### P2 - Medium Priority
+- [ ] WhatsApp messaging templates (one-click standard messages)
 - [ ] Meetings Calendar integration
 - [ ] Reminders system
-- [ ] Weekly messages templates
 - [ ] Instagram/WhatsApp lead source filters
 - [ ] Bulk category/priority updates
 
@@ -128,9 +104,4 @@ New Contact, Interested, Send Portfolio, Time Given, Meeting Scheduled, Meeting 
 - [ ] Duplicate merge functionality
 - [ ] Lead notes and activity timeline
 - [ ] Settings page (profile, notifications)
-
-## Next Tasks (Immediate)
-1. Build Today's Follow-ups page with real data
-2. Build Category pages (Meeting Done, Interested, etc.)
-3. Implement Pipeline Kanban board view
-4. Add Meetings Calendar
+- [ ] Backend refactoring (split server.py into route modules)

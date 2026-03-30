@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { 
     LayoutDashboard, Calendar, CalendarDays, CalendarRange, Table2, 
@@ -8,10 +8,14 @@ import {
 } from 'lucide-react';
 import { ScrollArea } from './ui/scroll-area';
 
-const navItems = [
+const formatShortDate = (date) => {
+    return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+};
+
+const baseNavItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard', countKey: null },
-    { icon: Calendar, label: 'Today', path: '/today', countKey: 'today' },
-    { icon: CalendarDays, label: 'Tomorrow', path: '/tomorrow', countKey: 'tomorrow' },
+    { icon: Calendar, label: 'Today', path: '/today', countKey: 'today', dateOffset: 0 },
+    { icon: CalendarDays, label: 'Tomorrow', path: '/tomorrow', countKey: 'tomorrow', dateOffset: 1 },
     { icon: CalendarRange, label: 'This Week', path: '/this-week', countKey: 'thisWeek' },
     { icon: Table2, label: 'All Leads Table', path: '/leads', countKey: 'total' },
     { icon: GitBranch, label: 'Pipeline', path: '/pipeline', countKey: null },
@@ -36,7 +40,21 @@ const navItems = [
     { icon: Settings, label: 'Settings', path: '/settings', countKey: null },
 ];
 
+const getNavItems = () => {
+    const today = new Date();
+    return baseNavItems.map(item => {
+        if (item.dateOffset !== undefined) {
+            const d = new Date(today);
+            d.setDate(d.getDate() + item.dateOffset);
+            return { ...item, dateLabel: formatShortDate(d) };
+        }
+        return item;
+    });
+};
+
 export default function Sidebar({ counts, currentPath, user, isAdmin, onLogout, onClose, className, isMobile }) {
+    const navItems = useMemo(() => getNavItems(), []);
+    
     return (
         <div className={`w-60 bg-white border-r border-gray-100 h-screen flex flex-col ${className}`}>
             {/* Header */}
@@ -100,7 +118,12 @@ export default function Sidebar({ counts, currentPath, user, isAdmin, onLogout, 
                                 }`}
                             >
                                 <Icon size={16} className={isActive ? 'text-[#E8536A]' : 'text-gray-400 group-hover:text-gray-600'} />
-                                <span className="text-[13px] font-medium flex-1">{item.label}</span>
+                                <span className="text-[13px] font-medium flex-1">
+                                    {item.label}
+                                    {item.dateLabel && (
+                                        <span className="text-[10px] font-normal text-gray-400 ml-1">· {item.dateLabel}</span>
+                                    )}
+                                </span>
                                 {count !== null && count !== undefined && (
                                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full min-w-[20px] text-center ${
                                         isActive 
