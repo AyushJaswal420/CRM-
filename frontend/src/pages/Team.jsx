@@ -13,7 +13,7 @@ import {
     DialogTrigger,
 } from '../components/ui/dialog';
 
-const API_URL = process.env.REACT_APP_BACKEND_URL;
+const API_URL = process.env.REACT_APP_API_URL;
 
 export default function Team() {
     const { isAdmin } = useOutletContext();

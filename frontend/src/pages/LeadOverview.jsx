@@ -39,7 +39,7 @@ import {
 } from '../components/ui/alert-dialog';
 import CallLogPanel from '../components/CallLogPanel';
 
-const API_URL = process.env.REACT_APP_BACKEND_URL;
+const API_URL = process.env.REACT_APP_API_URL;
 
 const CATEGORIES = [
     'Meeting Done', 'Interested', 'Call Back', 'Busy', 'No Response',

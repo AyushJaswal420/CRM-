@@ -5,7 +5,7 @@ import BottomNav from './BottomNav';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_BACKEND_URL;
+const API_URL = process.env.REACT_APP_API_URL;
 
 export default function Layout() {
     const { user, logout, isAdmin } = useAuth();

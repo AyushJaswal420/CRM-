@@ -4,7 +4,7 @@ import axios from 'axios';
 import { Calendar, Sunrise } from 'lucide-react';
 import LeadCard from '../components/LeadCard';
 
-const API_URL = process.env.REACT_APP_BACKEND_URL;
+const API_URL = process.env.REACT_APP_API_URL;
 
 export default function Tomorrow() {
     const { counts } = useOutletContext();

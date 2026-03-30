@@ -19,7 +19,7 @@ import {
     SelectValue,
 } from './ui/select';
 
-const API_URL = process.env.REACT_APP_BACKEND_URL;
+const API_URL = process.env.REACT_APP_API_URL;
 
 const ACTIONS = [
     { value: 'skip', label: 'Skip', color: 'text-gray-600 bg-gray-50 border-gray-200' },

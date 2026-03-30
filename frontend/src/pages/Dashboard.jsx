@@ -7,7 +7,7 @@ import {
     CalendarCheck, Sparkles
 } from 'lucide-react';
 
-const API_URL = process.env.REACT_APP_BACKEND_URL;
+const API_URL = process.env.REACT_APP_API_URL;
 
 const StatCard = ({ icon: Icon, label, value, color, path, className = '' }) => (
     <Link 

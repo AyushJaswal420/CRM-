@@ -29,7 +29,7 @@ import CallLogPanel from '../components/CallLogPanel';
 import ImportModal from '../components/ImportModal';
 import AddLeadModal from '../components/AddLeadModal';
 
-const API_URL = process.env.REACT_APP_BACKEND_URL;
+const API_URL = process.env.REACT_APP_API_URL;
 
 const CATEGORIES = [
     'Meeting Done', 'Interested', 'Call Back', 'Busy', 'No Response',

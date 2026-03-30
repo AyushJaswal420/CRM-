@@ -14,7 +14,7 @@ import {
 import LeadCard from '../components/LeadCard';
 import AddLeadModal from '../components/AddLeadModal';
 
-const API_URL = process.env.REACT_APP_BACKEND_URL;
+const API_URL = process.env.REACT_APP_API_URL;
 
 const SORT_OPTIONS = [
     { value: 'dateAdded_desc', label: 'Date Added (Newest)' },

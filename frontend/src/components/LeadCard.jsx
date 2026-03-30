@@ -19,7 +19,7 @@ import {
     SelectValue,
 } from './ui/select';
 
-const API_URL = process.env.REACT_APP_BACKEND_URL;
+const API_URL = process.env.REACT_APP_API_URL;
 
 const RESPONSES = [
     "Interested", "Not Interested", "Call Again 1", "Call Again 2", "Call Again 3",

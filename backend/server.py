@@ -21,9 +21,11 @@ from bson import ObjectId
 import pandas as pd
 
 # MongoDB connection
-mongo_url = os.environ['MONGO_URL']
+mongo_url = os.environ.get('MONGODB_URI') or os.environ.get('MONGO_URL')
+if not mongo_url:
+    raise RuntimeError("MONGODB_URI or MONGO_URL environment variable is required")
 client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
+db = client[os.environ.get('DB_NAME', 'wedus_crm')]
 
 # JWT Config
 JWT_ALGORITHM = "HS256"
@@ -1545,13 +1547,24 @@ async def shutdown_db_client():
 async def root():
     return {"message": "Wed Us CRM API", "version": "1.0.0"}
 
+# Health check (no /api prefix — sits on app directly for Railway/infra probes)
+@app.get("/health")
+async def health_check():
+    return {"status": "ok"}
+
 # Include the router in the main app
 app.include_router(api_router)
+
+# CORS — allow frontend origin from env
+_frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:3000")
+_allowed_origins = [_frontend_url]
+if "http://localhost:3000" not in _allowed_origins:
+    _allowed_origins.append("http://localhost:3000")
 
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=[os.environ.get("FRONTEND_URL", "http://localhost:3000"), "http://localhost:3000"],
+    allow_origins=_allowed_origins,
     allow_methods=["*"],
     allow_headers=["*"],
 )

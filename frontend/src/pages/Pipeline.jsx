@@ -23,7 +23,7 @@ import { ScrollArea } from '../components/ui/scroll-area';
 import { Badge } from '../components/ui/badge';
 import AddLeadModal from '../components/AddLeadModal';
 
-const API_URL = process.env.REACT_APP_BACKEND_URL;
+const API_URL = process.env.REACT_APP_API_URL;
 
 // Track 1: Lead Workflow
 const TRACK_1_STAGES = [
