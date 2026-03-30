@@ -33,8 +33,22 @@ export const AuthProvider = ({ children }) => {
                 withCredentials: true
             });
             setUser(response.data);
+            return true;
         } catch (err) {
+            // Try to refresh token
+            if (err.response?.status === 401) {
+                try {
+                    await axios.post(`${API_URL}/api/auth/refresh`, {}, { withCredentials: true });
+                    const response = await axios.get(`${API_URL}/api/auth/me`, { withCredentials: true });
+                    setUser(response.data);
+                    return true;
+                } catch (refreshErr) {
+                    setUser(null);
+                    return false;
+                }
+            }
             setUser(null);
+            return false;
         } finally {
             setLoading(false);
         }
@@ -42,7 +56,20 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         checkAuth();
-    }, [checkAuth]);
+        // Set up periodic token refresh (every 50 minutes)
+        const refreshInterval = setInterval(async () => {
+            if (user) {
+                try {
+                    await axios.post(`${API_URL}/api/auth/refresh`, {}, { withCredentials: true });
+                } catch (err) {
+                    // If refresh fails, check auth state
+                    checkAuth();
+                }
+            }
+        }, 50 * 60 * 1000);
+
+        return () => clearInterval(refreshInterval);
+    }, [checkAuth, user]);
 
     const login = async (email, password) => {
         try {

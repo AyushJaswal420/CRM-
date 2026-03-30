@@ -90,6 +90,19 @@ New Contact, Interested, Send Portfolio, Time Given, Meeting Scheduled, Meeting 
   - Duplicate badge on rows with amber border
   - "Show Duplicates Only" filter toggle
 
+## What's Been Implemented (Phase 3 - 2026-03-30)
+- ✅ **Pipeline Kanban Board** (/pipeline)
+  - Two tracks: Lead Workflow (8 stages) and Follow-up Track (6 stages)
+  - Color-coded columns with count badges
+  - Per-column sort dropdown (11 sort options)
+  - Global Sort button to apply same sort to all columns
+  - Sort preferences saved to localStorage
+  - + Add Lead button in each column (opens modal with pre-selected stage)
+  - Lead cards showing: company name, phone, city, assigned member, last response, next follow-up, portfolio badge, days since contact
+  - Edit/Delete buttons on each card
+  - **Drag-and-drop** between columns with instant MongoDB update
+  - Cards insert into correct sorted position in destination column
+
 ## Prioritized Backlog
 
 ### P0 - Critical (Next Phase)
@@ -100,7 +113,7 @@ New Contact, Interested, Send Portfolio, Time Given, Meeting Scheduled, Meeting 
 ### P1 - High Priority
 - [ ] Today/Tomorrow/This Week filtered views with real data
 - [ ] Category-specific pages with lead lists
-- [ ] Pipeline Kanban view
+- ✅ Pipeline Kanban view - DONE
 - [ ] Lead assignment to team members
 
 ### P2 - Medium Priority
