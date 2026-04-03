@@ -1510,6 +1510,172 @@ async def preview_import(request: Request, file: UploadFile = File(...)):
         "totalRows": len(full_df)
     }
 
+# ============== WHATSAPP TEMPLATES ==============
+
+class TemplateCreate(BaseModel):
+    name: str
+    message: str
+    category: Optional[str] = "General"
+
+class TemplateUpdate(BaseModel):
+    name: Optional[str] = None
+    message: Optional[str] = None
+    category: Optional[str] = None
+
+@api_router.get("/templates")
+async def get_templates(request: Request):
+    """Get all WhatsApp message templates."""
+    await get_current_user(request)
+    templates = await db.templates.find({}).sort("category", 1).to_list(200)
+    return [serialize_doc(t) for t in templates]
+
+@api_router.post("/templates")
+async def create_template(body: TemplateCreate, request: Request):
+    """Create a WhatsApp message template (admin only)."""
+    user = await require_admin(request)
+    doc = {
+        "name": body.name.strip(),
+        "message": body.message.strip(),
+        "category": body.category.strip() if body.category else "General",
+        "createdBy": user["id"],
+        "createdAt": datetime.now(timezone.utc).isoformat()
+    }
+    result = await db.templates.insert_one(doc)
+    doc["_id"] = result.inserted_id
+    return serialize_doc(doc)
+
+@api_router.put("/templates/{template_id}")
+async def update_template(template_id: str, body: TemplateUpdate, request: Request):
+    """Update a WhatsApp message template (admin only)."""
+    await require_admin(request)
+    update = {}
+    if body.name is not None:
+        update["name"] = body.name.strip()
+    if body.message is not None:
+        update["message"] = body.message.strip()
+    if body.category is not None:
+        update["category"] = body.category.strip()
+    if not update:
+        raise HTTPException(status_code=400, detail="No changes provided")
+    result = await db.templates.update_one({"_id": ObjectId(template_id)}, {"$set": update})
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Template not found")
+    updated = await db.templates.find_one({"_id": ObjectId(template_id)})
+    return serialize_doc(updated)
+
+@api_router.delete("/templates/{template_id}")
+async def delete_template(template_id: str, request: Request):
+    """Delete a WhatsApp message template (admin only)."""
+    await require_admin(request)
+    result = await db.templates.delete_one({"_id": ObjectId(template_id)})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Template not found")
+    return {"message": "Template deleted"}
+
+# ============== CALENDAR ==============
+
+@api_router.get("/calendar")
+async def get_calendar_events(
+    request: Request,
+    month: int = Query(..., ge=1, le=12),
+    year: int = Query(..., ge=2020, le=2100)
+):
+    """Get leads with meetings or follow-ups in a given month."""
+    user = await get_current_user(request)
+    base_query = {}
+    if user["role"] == "team_member":
+        base_query["assignedTo"] = user["id"]
+
+    start = datetime(year, month, 1, tzinfo=timezone.utc)
+    if month == 12:
+        end = datetime(year + 1, 1, 1, tzinfo=timezone.utc)
+    else:
+        end = datetime(year, month + 1, 1, tzinfo=timezone.utc)
+
+    start_iso = start.isoformat()
+    end_iso = end.isoformat()
+
+    # Follow-ups in this month
+    followup_query = {**base_query, "nextFollowupDate": {"$gte": start_iso, "$lt": end_iso}}
+    followups = await db.leads.find(followup_query).to_list(500)
+
+    # Meetings (pipeline stage = Meeting Scheduled or Meeting Done) with response history timestamps
+    meeting_query = {
+        **base_query,
+        "pipelineStage": {"$in": ["Meeting Scheduled", "Meeting Done"]}
+    }
+    meetings = await db.leads.find(meeting_query).to_list(500)
+
+    events = []
+    seen_ids = set()
+
+    for lead in followups:
+        lid = str(lead["_id"])
+        events.append({
+            **serialize_doc(lead),
+            "eventType": "followup",
+            "eventDate": lead.get("nextFollowupDate")
+        })
+        seen_ids.add(lid)
+
+    for lead in meetings:
+        lid = str(lead["_id"])
+        if lid not in seen_ids:
+            # Use nextFollowupDate or lastContactDate as event date
+            event_date = lead.get("nextFollowupDate") or lead.get("lastContactDate") or lead.get("dateAdded")
+            events.append({
+                **serialize_doc(lead),
+                "eventType": "meeting",
+                "eventDate": event_date
+            })
+
+    return events
+
+# ============== REMINDERS ==============
+
+@api_router.get("/reminders")
+async def get_reminders(request: Request):
+    """Get overdue and upcoming follow-up reminders."""
+    user = await get_current_user(request)
+    base_query = {}
+    if user["role"] == "team_member":
+        base_query["assignedTo"] = user["id"]
+
+    now = datetime.now(timezone.utc)
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    today_end = today_start + timedelta(days=1)
+    tomorrow_end = today_start + timedelta(days=2)
+    week_end = today_start + timedelta(days=7)
+
+    # Overdue: follow-up date < today
+    overdue_q = {**base_query, "nextFollowupDate": {"$lt": today_start.isoformat(), "$ne": None}}
+    overdue = await db.leads.find(overdue_q).sort("nextFollowupDate", 1).to_list(100)
+
+    # Today
+    today_q = {**base_query, "nextFollowupDate": {"$gte": today_start.isoformat(), "$lt": today_end.isoformat()}}
+    today_leads = await db.leads.find(today_q).sort("nextFollowupDate", 1).to_list(100)
+
+    # Tomorrow
+    tomorrow_q = {**base_query, "nextFollowupDate": {"$gte": today_end.isoformat(), "$lt": tomorrow_end.isoformat()}}
+    tomorrow_leads = await db.leads.find(tomorrow_q).sort("nextFollowupDate", 1).to_list(100)
+
+    # This week (rest of week after tomorrow)
+    week_q = {**base_query, "nextFollowupDate": {"$gte": tomorrow_end.isoformat(), "$lt": week_end.isoformat()}}
+    week_leads = await db.leads.find(week_q).sort("nextFollowupDate", 1).to_list(200)
+
+    return {
+        "overdue": [serialize_doc(lead) for lead in overdue],
+        "today": [serialize_doc(lead) for lead in today_leads],
+        "tomorrow": [serialize_doc(lead) for lead in tomorrow_leads],
+        "thisWeek": [serialize_doc(lead) for lead in week_leads],
+        "counts": {
+            "overdue": len(overdue),
+            "today": len(today_leads),
+            "tomorrow": len(tomorrow_leads),
+            "thisWeek": len(week_leads)
+        }
+    }
+
 # ============== DASHBOARD STATS ==============
 
 @api_router.get("/stats/dashboard")
@@ -1633,6 +1799,25 @@ async def startup_db():
             f.write("- Role: team_member\n\n")
     
     logger.info("Database initialized successfully")
+
+    # Seed default WhatsApp templates
+    template_count = await db.templates.count_documents({})
+    if template_count == 0:
+        default_templates = [
+            {"name": "Introduction", "message": "Hi {company}! This is {team} from Wed Us Design. We specialize in premium wedding decor and design. Would love to discuss how we can make your event special!", "category": "First Contact"},
+            {"name": "Portfolio Share", "message": "Hi {company}! As discussed, here is our portfolio: [link]. Please take a look and let us know your thoughts. We'd love to work with you!", "category": "Follow-up"},
+            {"name": "Meeting Confirmation", "message": "Hi {company}! Just confirming our meeting scheduled for {date}. Looking forward to discussing your event requirements. See you soon!", "category": "Meeting"},
+            {"name": "Post-Meeting Follow-up", "message": "Hi {company}! Great meeting you today. As discussed, we'll send over the detailed proposal shortly. Please feel free to reach out with any questions!", "category": "Follow-up"},
+            {"name": "Price List", "message": "Hi {company}! Here is our updated price list as requested: [link]. Happy to customize a package that fits your budget. Let us know!", "category": "Sales"},
+            {"name": "Thank You", "message": "Hi {company}! Thank you for choosing Wed Us Design! We are thrilled to be part of your special day. Our team will be in touch with the next steps.", "category": "Onboarding"},
+            {"name": "Gentle Reminder", "message": "Hi {company}! Just a gentle follow-up on our previous conversation. Would you like to schedule a time to discuss further? We'd love to help!", "category": "Follow-up"},
+            {"name": "Weekly Check-in", "message": "Hi {company}! Hope you're having a great week. Just checking in — any updates on your event planning? We're here to help whenever you're ready!", "category": "Follow-up"},
+        ]
+        for tmpl in default_templates:
+            tmpl["createdBy"] = "system"
+            tmpl["createdAt"] = datetime.now(timezone.utc).isoformat()
+            await db.templates.insert_one(tmpl)
+        logger.info(f"Seeded {len(default_templates)} default WhatsApp templates")
 
 @app.on_event("shutdown")
 async def shutdown_db_client():

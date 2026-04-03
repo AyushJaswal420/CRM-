@@ -13,6 +13,9 @@ import ThisWeek from "./pages/ThisWeek";
 import CategoryPage from "./pages/CategoryPage";
 import Team from "./pages/Team";
 import Settings from "./pages/Settings";
+import WeeklyMessages from "./pages/WeeklyMessages";
+import Calendar from "./pages/Calendar";
+import Reminders from "./pages/Reminders";
 import PlaceholderPage from "./pages/PlaceholderPage";
 import { Toaster } from "./components/ui/sonner";
 
@@ -85,9 +88,9 @@ function AppRoutes() {
                 {/* Other Routes */}
                 <Route path="instagram" element={<PlaceholderPage title="Instagram Leads" description="Leads sourced from Instagram." />} />
                 <Route path="whatsapp" element={<PlaceholderPage title="WhatsApp Leads" description="Leads with WhatsApp contacts." />} />
-                <Route path="calendar" element={<PlaceholderPage title="Meetings Calendar" description="Calendar view of all scheduled meetings." />} />
-                <Route path="reminders" element={<PlaceholderPage title="Reminders" description="View and manage your reminders." />} />
-                <Route path="weekly-messages" element={<PlaceholderPage title="Weekly Messages" description="Weekly message templates and logs." />} />
+                <Route path="calendar" element={<Calendar />} />
+                <Route path="reminders" element={<Reminders />} />
+                <Route path="weekly-messages" element={<WeeklyMessages />} />
                 <Route path="team" element={<Team />} />
                 <Route path="settings" element={<Settings />} />
             </Route>
