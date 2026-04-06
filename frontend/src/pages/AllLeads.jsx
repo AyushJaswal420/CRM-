@@ -381,7 +381,7 @@ export default function AllLeads() {
                         <Input
                             value={search}
                             onChange={(e) => handleSearchChange(e.target.value)}
-                            placeholder="Search company, phone, city..."
+                            placeholder="Search company, name, phone, city..."
                             className="pl-8 h-8 text-[11px] rounded-[8px]"
                             data-testid="search-leads-input"
                         />
@@ -616,6 +616,9 @@ export default function AllLeads() {
                                                     >
                                                         {lead.companyName}
                                                     </Link>
+                                                    {lead.personName && (
+                                                        <span className="block text-[10px] text-gray-400 truncate max-w-[120px]">{lead.personName}</span>
+                                                    )}
                                                 </div>
                                             </td>
                                             <td className="px-2 py-1">

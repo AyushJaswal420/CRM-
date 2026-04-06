@@ -43,6 +43,7 @@ export default function AddLeadModal({ open, onClose, onSuccess, teamMembers, de
     
     const [formData, setFormData] = useState({
         companyName: '',
+        personName: '',
         phone: '',
         phone2: '',
         whatsapp: '',
@@ -89,6 +90,7 @@ export default function AddLeadModal({ open, onClose, onSuccess, teamMembers, de
             // Reset form
             setFormData({
                 companyName: '',
+                personName: '',
                 phone: '',
                 phone2: '',
                 whatsapp: '',
@@ -141,6 +143,20 @@ export default function AddLeadModal({ open, onClose, onSuccess, teamMembers, de
                                     data-testid="add-lead-company"
                                 />
                             </div>
+                            <div className="space-y-2">
+                                <Label className="text-[11px]">Person Name</Label>
+                                <Input
+                                    value={formData.personName}
+                                    onChange={(e) => handleChange('personName', e.target.value)}
+                                    placeholder="Contact person"
+                                    className="h-9 text-[12px] rounded-[8px]"
+                                    data-testid="add-lead-person"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Email */}
+                        <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label className="text-[11px]">Email</Label>
                                 <Input

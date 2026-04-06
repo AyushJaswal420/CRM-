@@ -151,6 +151,7 @@ class TeamMemberCreate(BaseModel):
 
 class LeadCreate(BaseModel):
     companyName: str
+    personName: Optional[str] = None
     phone: Optional[str] = None
     phone2: Optional[str] = None
     whatsapp: Optional[str] = None
@@ -176,6 +177,7 @@ class LeadCreate(BaseModel):
 
 class LeadUpdate(BaseModel):
     companyName: Optional[str] = None
+    personName: Optional[str] = None
     phone: Optional[str] = None
     phone2: Optional[str] = None
     whatsapp: Optional[str] = None
@@ -379,7 +381,8 @@ def map_column_name(col: str) -> Optional[str]:
     """Map CSV column names to lead fields"""
     col = col.lower().strip()
     mappings = {
-        'companyName': ['company', 'company name', 'firm', 'brand', 'client name', 'name', 'business name', 'companyname'],
+        'companyName': ['company', 'company name', 'firm', 'brand', 'client name', 'business name', 'companyname'],
+        'personName': ['person', 'person name', 'contact person', 'contact name', 'name', 'client', 'poc', 'point of contact', 'personname'],
         'phone': ['phone', 'phone number', 'mobile', 'contact', 'number', 'ph', 'mob', 'cell', 'phone 1', 'primary phone', 'phone1'],
         'phone2': ['phone 2', 'phone2', 'alternate', 'alt phone', 'secondary', 'number 2', 'alternate phone'],
         'whatsapp': ['whatsapp', 'wa', 'wp', 'whatsapp number', 'wa number', 'whatsapp1', 'whatsapp 1'],
@@ -687,6 +690,7 @@ async def get_leads(
     if search:
         search_query = {"$or": [
             {"companyName": {"$regex": search, "$options": "i"}},
+            {"personName": {"$regex": search, "$options": "i"}},
             {"email": {"$regex": search, "$options": "i"}},
             {"phone": {"$regex": search, "$options": "i"}},
             {"phone2": {"$regex": search, "$options": "i"}},
@@ -791,6 +795,7 @@ async def export_leads(
     if search:
         query["$or"] = [
             {"companyName": {"$regex": search, "$options": "i"}},
+            {"personName": {"$regex": search, "$options": "i"}},
             {"phone": {"$regex": search, "$options": "i"}},
             {"city": {"$regex": search, "$options": "i"}}
         ]

@@ -231,6 +231,9 @@ export default function LeadOverview() {
                     </button>
                     <div className="flex items-center gap-3 flex-wrap">
                         <h1 className="font-heading text-2xl font-semibold text-gray-900">{lead.companyName}</h1>
+                        {lead.personName && (
+                            <span className="text-sm text-gray-500">{lead.personName}</span>
+                        )}
                         {lead.isDuplicate && !lead.duplicateDismissed && (
                             <Badge variant="outline" className="text-amber-700 bg-amber-100 border-amber-300">
                                 <AlertTriangle size={12} className="mr-1" />
@@ -617,6 +620,7 @@ function EditLeadModal({ open, onClose, lead, onSuccess, teamMembers }) {
         if (lead) {
             setFormData({
                 companyName: lead.companyName || '',
+                personName: lead.personName || '',
                 phone: lead.phone || '',
                 phone2: lead.phone2 || '',
                 whatsapp: lead.whatsapp || '',
@@ -675,6 +679,19 @@ function EditLeadModal({ open, onClose, lead, onSuccess, teamMembers }) {
                                 />
                             </div>
                             <div className="space-y-2">
+                                <Label className="text-[11px]">Person Name</Label>
+                                <Input
+                                    value={formData.personName}
+                                    onChange={(e) => handleChange('personName', e.target.value)}
+                                    placeholder="Contact person"
+                                    className="h-9 text-[12px] rounded-[8px]"
+                                    data-testid="edit-person-name"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
                                 <Label className="text-[11px]">Email</Label>
                                 <Input
                                     type="email"
@@ -683,9 +700,6 @@ function EditLeadModal({ open, onClose, lead, onSuccess, teamMembers }) {
                                     className="h-9 text-[12px] rounded-[8px]"
                                 />
                             </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label className="text-[11px]">Phone</Label>
                                 <Input

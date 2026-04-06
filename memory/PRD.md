@@ -9,10 +9,6 @@ Build a CRM web app called "Wed Us CRM" for a wedding design company with:
 - Dashboard, lead management, pipeline, calendar, reminders
 - Design: #FFF5F5 background, #E8536A coral pink accent, compact data-dense layout
 
-## User Personas
-1. **Admin** - Full access: leads, team, templates CRUD, settings, duplicate toggle
-2. **Team Member** - Own leads, read-only templates, own profile/password, reminders
-
 ## What's Been Implemented
 
 ### Phase 1 - Core Setup (2026-03-30)
@@ -28,23 +24,26 @@ Build a CRM web app called "Wed Us CRM" for a wedding design company with:
 
 ### Phase 4 - Import Duplicate Review (2026-03-30)
 - Analyze/Batch/Resolve import endpoints, Duplicate Review screen
-- Side-by-side comparison, Skip/Overwrite/Import Anyway/Merge actions
 
 ### Phase 5 - Settings & Deployment (2026-04-03)
 - Settings page: Profile (name/email/color), Change Password, Duplicate Detection toggle
 - Deployment files: vercel.json, railway.json, Procfile, main.py, .env.examples, README.md
-- Frontend migrated to REACT_APP_API_URL, /health endpoint, CORS via FRONTEND_URL
 
 ### Phase 6 - Templates, Calendar, Reminders (2026-04-03)
-- **WhatsApp Templates** (/weekly-messages): Full CRUD, 8 seeded templates, grouped by category, placeholders ({company}, {team}, {date}), copy to clipboard, wa.me link integration, admin-only edit/delete
-- **Meetings Calendar** (/calendar): Monthly grid view, follow-up and meeting events, prev/next navigation, day click shows event details in side panel, click-to-navigate to lead
-- **Reminders** (/reminders): 4-section dashboard (Overdue/Today/Tomorrow/This Week), count summary cards, clickable lead rows navigate to detail, role-based filtering
+- WhatsApp Templates, Meetings Calendar, Reminders dashboard
+
+### Phase 7 - Person Name Field (2026-04-06)
+- **personName** field added to lead schema (LeadCreate, LeadUpdate models)
+- Shows as subtitle below companyName in All Leads table + Lead Overview header
+- Editable in Lead Overview edit form and Add Lead modal
+- Searchable from the search bar (backend search queries updated)
+- Column mapping added for CSV import: 'person', 'contact person', 'name', 'poc', etc.
 
 ## Prioritized Backlog
 
 ### P1 - High Priority
 - [ ] Round-robin lead distribution on import
-- [ ] Quick Stats widget on Settings page (personal activity)
+- [ ] Quick Stats widget on Settings page
 - [ ] Dashboard charts/analytics
 
 ### P2 - Medium Priority
