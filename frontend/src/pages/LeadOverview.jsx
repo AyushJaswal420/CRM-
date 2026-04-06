@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
 import axios from 'axios';
 import { 
-    ArrowLeft, Phone, Mail, MapPin, Instagram, MessageCircle, 
+    ArrowLeft, Phone, Mail, Instagram, MessageCircle, 
     Calendar, Clock, Edit2, Trash2, Check, X, ExternalLink,
     Send, User, AlertTriangle
 } from 'lucide-react';
@@ -40,6 +40,12 @@ import {
 import CallLogPanel from '../components/CallLogPanel';
 
 const API_URL = process.env.REACT_APP_API_URL;
+
+const WA_NUMBERS = [
+    { value: '5235', label: '...5235' },
+    { value: '5533', label: '...5533' },
+    { value: '0951', label: '...0951' },
+];
 
 const CATEGORIES = [
     'Meeting Done', 'Interested', 'Call Back', 'Busy', 'No Response',
@@ -392,12 +398,10 @@ export default function LeadOverview() {
                                 )}
                             </div>
                         </div>
-                    </div>
 
-                    {/* Location */}
-                    <div className="bg-white rounded-[16px] shadow-sm border border-gray-100 p-4">
-                        <h2 className="font-heading text-sm font-medium text-gray-900 mb-4">Location</h2>
-                        <div className="grid grid-cols-3 gap-4 mb-4">
+                        {/* Chatting Via + Location row */}
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4 pt-4 border-t border-gray-100">
+                            <ChattingViaButton lead={lead} onUpdate={fetchLead} />
                             <div>
                                 <Label className="text-[10px] text-gray-400 uppercase">City</Label>
                                 <InlineEditField field="city" value={lead.city} />
@@ -411,20 +415,6 @@ export default function LeadOverview() {
                                 <InlineEditField field="address" value={lead.address} />
                             </div>
                         </div>
-                        {lead.city && (
-                            <div className="rounded-[12px] overflow-hidden border border-gray-100">
-                                <iframe
-                                    src={`https://maps.google.com/maps?q=${encodeURIComponent(lead.city + (lead.state ? ', ' + lead.state : ''))}&output=embed`}
-                                    width="100%"
-                                    height="200"
-                                    style={{ border: 0 }}
-                                    allowFullScreen=""
-                                    loading="lazy"
-                                    referrerPolicy="no-referrer-when-downgrade"
-                                    title="Location Map"
-                                />
-                            </div>
-                        )}
                     </div>
 
                     {/* Lead Details */}
@@ -876,5 +866,70 @@ function EditLeadModal({ open, onClose, lead, onSuccess, teamMembers }) {
                 </ScrollArea>
             </DialogContent>
         </Dialog>
+    );
+}
+
+
+function ChattingViaButton({ lead, onUpdate }) {
+    const [open, setOpen] = useState(false);
+    const current = WA_NUMBERS.find(n => n.value === lead.chattingVia);
+
+    const handleSelect = async (val) => {
+        const newVal = val === lead.chattingVia ? null : val;
+        try {
+            await axios.put(`${API_URL}/api/leads/${lead.id}/chatting-via`, {
+                chattingVia: newVal
+            }, { withCredentials: true });
+            onUpdate();
+        } catch (e) {
+            console.error('Failed to update chattingVia');
+        }
+        setOpen(false);
+    };
+
+    return (
+        <div>
+            <Label className="text-[10px] text-gray-400 uppercase">Chatting Via</Label>
+            <div className="relative">
+                <button
+                    onClick={() => setOpen(!open)}
+                    data-testid="chatting-via-btn"
+                    className={`flex items-center gap-1.5 mt-0.5 px-3 py-1.5 rounded-[8px] text-[12px] font-semibold transition-all border ${
+                        current
+                            ? 'bg-green-500 hover:bg-green-600 text-white border-green-600'
+                            : 'bg-gray-100 hover:bg-gray-200 text-gray-500 border-gray-200'
+                    }`}
+                >
+                    <MessageCircle size={13} />
+                    {current ? current.label : 'Not Set'}
+                </button>
+                {open && (
+                    <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-[10px] shadow-lg z-20 py-1 min-w-[120px]">
+                        {WA_NUMBERS.map(n => (
+                            <button
+                                key={n.value}
+                                onClick={() => handleSelect(n.value)}
+                                data-testid={`chatting-via-option-${n.value}`}
+                                className={`w-full text-left px-3 py-1.5 text-[11px] flex items-center gap-2 hover:bg-green-50 transition-colors ${
+                                    lead.chattingVia === n.value ? 'bg-green-50 text-green-700 font-semibold' : 'text-gray-700'
+                                }`}
+                            >
+                                <MessageCircle size={12} className={lead.chattingVia === n.value ? 'text-green-500' : 'text-gray-400'} />
+                                {n.label}
+                                {lead.chattingVia === n.value && <Check size={12} className="ml-auto text-green-600" />}
+                            </button>
+                        ))}
+                        {lead.chattingVia && (
+                            <button
+                                onClick={() => handleSelect(lead.chattingVia)}
+                                className="w-full text-left px-3 py-1.5 text-[11px] text-red-500 hover:bg-red-50 border-t border-gray-100"
+                            >
+                                Clear
+                            </button>
+                        )}
+                    </div>
+                )}
+            </div>
+        </div>
     );
 }

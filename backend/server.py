@@ -174,6 +174,7 @@ class LeadCreate(BaseModel):
     priceListSent: Optional[bool] = False
     waSent: Optional[bool] = False
     notes: Optional[str] = None
+    chattingVia: Optional[str] = None
 
 class LeadUpdate(BaseModel):
     companyName: Optional[str] = None
@@ -201,6 +202,7 @@ class LeadUpdate(BaseModel):
     waSent: Optional[bool] = None
     notes: Optional[str] = None
     dateMarkedNotInterested: Optional[str] = None
+    chattingVia: Optional[str] = None
 
 class ResponseHistoryEntry(BaseModel):
     response: str
@@ -645,6 +647,7 @@ async def get_leads(
     portfolioSent: Optional[bool] = None,
     mostCommonResponse: Optional[str] = None,
     showDuplicatesOnly: Optional[bool] = False,
+    chattingVia: Optional[str] = None,
     sortField: Optional[str] = "categoryRank",
     sortDirection: Optional[int] = 1,
     sortField2: Optional[str] = None,
@@ -677,6 +680,8 @@ async def get_leads(
     if showDuplicatesOnly:
         query["isDuplicate"] = True
         query["duplicateDismissed"] = {"$ne": True}
+    if chattingVia:
+        query["chattingVia"] = chattingVia
     if source == "instagram":
         query["instagram"] = {"$exists": True, "$nin": [None, ""]}
     elif source == "whatsapp":
@@ -976,6 +981,24 @@ async def delete_lead(lead_id: str, request: Request):
         raise HTTPException(status_code=404, detail="Lead not found")
     
     return {"message": "Lead deleted"}
+
+class ChattingViaUpdate(BaseModel):
+    chattingVia: Optional[str] = None
+
+@api_router.put("/leads/{lead_id}/chatting-via")
+async def update_chatting_via(lead_id: str, body: ChattingViaUpdate, request: Request):
+    """Quick update the chattingVia field for a lead."""
+    user = await get_current_user(request)
+    lead = await db.leads.find_one({"_id": ObjectId(lead_id)})
+    if not lead:
+        raise HTTPException(status_code=404, detail="Lead not found")
+    if user["role"] == "team_member" and lead.get("assignedTo") != user["id"]:
+        raise HTTPException(status_code=403, detail="Access denied")
+    await db.leads.update_one(
+        {"_id": ObjectId(lead_id)},
+        {"$set": {"chattingVia": body.chattingVia}}
+    )
+    return {"message": "Updated", "chattingVia": body.chattingVia}
 
 @api_router.post("/leads/bulk")
 async def bulk_action(action: BulkAction, request: Request):

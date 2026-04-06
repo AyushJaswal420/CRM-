@@ -101,6 +101,7 @@ export default function AllLeads() {
     const [sourceFilter, setSourceFilter] = useState('');
     const [portfolioSentFilter, setPortfolioSentFilter] = useState('');
     const [showDuplicatesOnly, setShowDuplicatesOnly] = useState(false);
+    const [chattingViaFilter, setChattingViaFilter] = useState('');
     
     // Sort states
     const [sortField, setSortField] = useState('categoryRank');
@@ -158,6 +159,7 @@ export default function AllLeads() {
             if (sourceFilter) params.append('source', sourceFilter);
             if (portfolioSentFilter) params.append('portfolioSent', portfolioSentFilter === 'yes');
             if (showDuplicatesOnly) params.append('showDuplicatesOnly', 'true');
+            if (chattingViaFilter) params.append('chattingVia', chattingViaFilter);
             if (search) params.append('search', search);
             params.append('sortField', sortField);
             params.append('sortDirection', sortDirection);
@@ -178,7 +180,7 @@ export default function AllLeads() {
         } finally {
             setLoading(false);
         }
-    }, [categoryFilter, priorityFilter, assignedToFilter, cityFilter, sourceFilter, portfolioSentFilter, showDuplicatesOnly, search, sortField, sortDirection, sortField2, sortDirection2, page, pageSize]);
+    }, [categoryFilter, priorityFilter, assignedToFilter, cityFilter, sourceFilter, portfolioSentFilter, showDuplicatesOnly, chattingViaFilter, search, sortField, sortDirection, sortField2, sortDirection2, page, pageSize]);
 
     useEffect(() => {
         fetchLeads();
@@ -310,11 +312,12 @@ export default function AllLeads() {
         setSourceFilter('');
         setPortfolioSentFilter('');
         setShowDuplicatesOnly(false);
+        setChattingViaFilter('');
         setSearch('');
         setPage(0);
     };
 
-    const hasFilters = categoryFilter || priorityFilter || assignedToFilter || cityFilter || sourceFilter || portfolioSentFilter || showDuplicatesOnly || search;
+    const hasFilters = categoryFilter || priorityFilter || assignedToFilter || cityFilter || sourceFilter || portfolioSentFilter || showDuplicatesOnly || chattingViaFilter || search;
 
     const SortIcon = ({ field }) => {
         const isActive = sortField === field;
@@ -454,6 +457,18 @@ export default function AllLeads() {
                         />
                         Duplicates
                     </label>
+
+                    <Select value={chattingViaFilter || undefined} onValueChange={v => { setChattingViaFilter(v === 'all' ? '' : v); setPage(0); }}>
+                        <SelectTrigger className="w-[120px] h-8 text-[11px] rounded-[8px]" data-testid="filter-chatting-via">
+                            <SelectValue placeholder="Chatting Via" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All Numbers</SelectItem>
+                            <SelectItem value="5235">...5235</SelectItem>
+                            <SelectItem value="5533">...5533</SelectItem>
+                            <SelectItem value="0951">...0951</SelectItem>
+                        </SelectContent>
+                    </Select>
 
                     {hasFilters && (
                         <Button
