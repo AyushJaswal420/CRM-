@@ -458,7 +458,7 @@ export default function AllLeads() {
                         Duplicates
                     </label>
 
-                    <Select value={chattingViaFilter || undefined} onValueChange={v => { setChattingViaFilter(v === 'all' ? '' : v); setPage(0); }}>
+                    <Select value={chattingViaFilter || 'all'} onValueChange={v => { setChattingViaFilter(v === 'all' ? '' : v); setPage(0); }}>
                         <SelectTrigger className="w-[120px] h-8 text-[11px] rounded-[8px]" data-testid="filter-chatting-via">
                             <SelectValue placeholder="Chatting Via" />
                         </SelectTrigger>
