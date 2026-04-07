@@ -1865,14 +1865,21 @@ async def health_check():
 app.include_router(api_router)
 
 # CORS — allow frontend origin from env
+_cors_origins_raw = os.environ.get("CORS_ORIGINS", "")
 _frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:3000")
-_allowed_origins = [_frontend_url]
-if "http://localhost:3000" not in _allowed_origins:
-    _allowed_origins.append("http://localhost:3000")
+
+if _cors_origins_raw == "*":
+    _allowed_origins = ["*"]
+elif _cors_origins_raw:
+    _allowed_origins = [o.strip() for o in _cors_origins_raw.split(",") if o.strip()]
+else:
+    _allowed_origins = [_frontend_url]
+    if "http://localhost:3000" not in _allowed_origins:
+        _allowed_origins.append("http://localhost:3000")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_credentials=True,
+    allow_credentials=True if _allowed_origins != ["*"] else False,
     allow_origins=_allowed_origins,
     allow_methods=["*"],
     allow_headers=["*"],
