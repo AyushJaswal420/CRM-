@@ -3,6 +3,34 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import "tailwindcss";
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%; /* Example: Dark blue/gray */
+  /* ... add other variables like --primary, --muted if needed */
+}
+
+.dark {
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
+}
+
+@theme inline {
+  /* This maps the CSS variable to the Tailwind 'foreground' utility */
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  
+  /* Make sure your previous border fix is also here */
+  --color-border: var(--border);
+}
+
+@layer base {
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
 
 :root {
     --background: 0 100% 98%;
